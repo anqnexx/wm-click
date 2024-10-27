@@ -22,12 +22,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            animation: gradientAnimation 5s ease infinite;
-        }
-        @keyframes gradientAnimation {
-            0% { background-color: #72e2ff; }
-            50% { background-color: #d3d3ff; }
-            100% { background-color: #72e2ff; }
+            position: relative;
         }
         .container {
             text-align: center;
@@ -84,7 +79,6 @@
             flex-direction: column;
             justify-content: space-around;
             z-index: 10;
-            transition: left 0.3s ease;
         }
         .burger div {
             width: 30px;
@@ -100,9 +94,6 @@
         }
         .burger.active div:nth-child(3) {
             transform: rotate(-45deg) translate(5px, -5px);
-        }
-        .sidebar.active ~ .burger {
-            left: 250px;
         }
         .menu-item {
             margin: 10px 0;
@@ -131,18 +122,6 @@
             background-color: #ffcccb;
             color: black;
         }
-        .user-info {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            text-align: right;
-            color: black;
-        }
-        .user-info img {
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-        }
     </style>
 </head>
 <body>
@@ -155,10 +134,7 @@
         <div></div>
         <div></div>
     </div>
-    <div class="user-info" id="userInfo">
-        <!-- Информация о пользователе Telegram будет отображаться здесь -->
-    </div>
-    <div class="container">
+    <div class="container" id="gameContainer">
         <div class="counter">
             <img src="coin.png" alt="Coins" class="coin-icon">
             <span id="coinCount">0</span>
@@ -167,110 +143,92 @@
     </div>
     <script>
         (() => {
-            let _coinCount = parseInt(localStorage.getItem('coinCount')) || 0;
+            let _coinCount = 0;
             let coinsPerSecond = 0;
-            const upgradeMultiplier = 1.3;
+            let clickValue = 1;
 
             const upgrades = [
+                { name: "Click Upgrade", cost: 200, effect: "+1 per click", effectFn: () => clickValue += 1 },
                 { name: "Watermelon Seeds", cost: 100, effect: "+1 per sec", effectFn: () => coinsPerSecond += 1 },
                 { name: "Watermelon", cost: 500, effect: "+5 per sec", effectFn: () => coinsPerSecond += 5 },
                 { name: "Double Watermelons", cost: 1200, effect: "+10 per sec", effectFn: () => coinsPerSecond += 10 },
                 { name: "Watermelon Farm", cost: 3000, effect: "+50 per sec", effectFn: () => coinsPerSecond += 50 },
                 { name: "Watermelon Empire", cost: 8000, effect: "+100 per sec", effectFn: () => coinsPerSecond += 100 },
                 { name: "Juicy Watermelons", cost: 15000, effect: "+150 per sec", effectFn: () => coinsPerSecond += 150 },
-                { name: "Mega Farm", cost: 25000, effect: "+200 per sec", effectFn: () => coinsPerSecond += 200 },
-                { name: "Super Watermelon Field", cost: 40000, effect: "+250 per sec", effectFn: () => coinsPerSecond += 250 },
-                { name: "Hyper Farm", cost: 60000, effect: "+300 per sec", effectFn: () => coinsPerSecond += 300 },
-                { name: "Infinity Farm", cost: 100000, effect: "+500 per sec", effectFn: () => coinsPerSecond += 500 }
+                { name: "Mega Watermelon", cost: 30000, effect: "+200 per sec", effectFn: () => coinsPerSecond += 200 },
+                { name: "Super Watermelon", cost: 50000, effect: "+500 per sec", effectFn: () => coinsPerSecond += 500 },
             ];
 
             const buyUpgrade = (index) => {
-                const upgrade = upgrades[index];
-                if (_coinCount >= upgrade.cost) {
-                    _coinCount -= upgrade.cost;
-                    upgrade.effectFn();
-                    upgrade.cost = Math.round(upgrade.cost * upgradeMultiplier);
-                    localStorage.setItem('coinCount', _coinCount); // Сохраняем количество монет
-
-                    const button = document.getElementById(`upgrade-${index}`);
-                    button.innerText = `${upgrade.name} - Cost: ${upgrade.cost} coins\nEffect: ${upgrade.effect}`;
-
+                if (_coinCount >= upgrades[index].cost) {
+                    _coinCount -= upgrades[index].cost;
+                    upgrades[index].effectFn();
+                    upgrades[index].cost = Math.ceil(upgrades[index].cost * 1.3); // Увеличиваем стоимость на 30%
                     updateDisplay();
-                } else {
-                    alert("Not enough coins for this upgrade!");
+                    saveState();
                 }
             };
 
             const updateDisplay = () => {
                 document.getElementById('coinCount').innerText = _coinCount;
-                upgrades.forEach((upgrade, index) => {
-                    const button = document.getElementById(`upgrade-${index}`);
-                    if (_coinCount >= upgrade.cost) {
-                        button.classList.add('available');
-                        button.classList.remove('unavailable');
-                    } else {
-                        button.classList.add('unavailable');
-                        button.classList.remove('available');
-                    }
-                });
+                renderUpgrades();
             };
 
-            document.getElementById('clickableImage').addEventListener('click', () => {
-                _coinCount++;
-                localStorage.setItem('coinCount', _coinCount); // Сохраняем количество монет
-                updateDisplay();
-            });
-
-            const burger = document.getElementById('burger');
-            const sidebar = document.getElementById('sidebar');
-            const upgradesMenu = document.getElementById('upgradesMenu');
-            const upgradesPanel = document.getElementById('upgradesPanel');
-
-            burger.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-                burger.classList.toggle('active');
-            });
-
-            upgradesMenu.addEventListener('click', () => {
+            const renderUpgrades = () => {
+                const upgradesPanel = document.getElementById('upgradesPanel');
                 upgradesPanel.innerHTML = '';
                 upgrades.forEach((upgrade, index) => {
                     const button = document.createElement('div');
-                    button.className = 'upgrade-item';
                     button.id = `upgrade-${index}`;
+                    button.classList.add('upgrade-item', _coinCount >= upgrade.cost ? 'available' : 'unavailable');
                     button.innerText = `${upgrade.name} - Cost: ${upgrade.cost} coins\nEffect: ${upgrade.effect}`;
-                    button.onclick = () => buyUpgrade(index);
+                    button.addEventListener('click', () => buyUpgrade(index));
                     upgradesPanel.appendChild(button);
                 });
-                sidebar.classList.add('active');
-                burger.classList.add('active');
-            });
-
-            setInterval(() => {
-                _coinCount += coinsPerSecond;
-                localStorage.setItem('coinCount', _coinCount); // Сохраняем количество монет
-                updateDisplay();
-            }, 1000);
-
-            // Функция для получения данных о пользователе Telegram
-            const getUserInfo = () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const telegramUserId = urlParams.get('user_id'); // Получаем user_id из URL
-                const telegramUsername = urlParams.get('username'); // Получаем username из URL
-                const telegramAvatarUrl = urlParams.get('avatar_url'); // Получаем avatar_url из URL
-
-                if (telegramUserId && telegramUsername) {
-                    document.getElementById('userInfo').innerHTML = `
-                        <img src="${telegramAvatarUrl}" alt="${telegramUsername} Avatar">
-                        <div>
-                            <strong>ID:</strong> ${telegramUserId}<br>
-                            <strong>Username:</strong> @${telegramUsername}
-                        </div>
-                    `;
-                }
             };
 
-            getUserInfo(); // Вызываем функцию для получения информации о пользователе
-            updateDisplay();
+            const saveState = () => {
+                localStorage.setItem('coinCount', _coinCount);
+                localStorage.setItem('coinsPerSecond', coinsPerSecond);
+                localStorage.setItem('clickValue', clickValue);
+            };
+
+            const loadState = () => {
+                const savedCoinCount = localStorage.getItem('coinCount');
+                const savedCoinsPerSecond = localStorage.getItem('coinsPerSecond');
+                const savedClickValue = localStorage.getItem('clickValue');
+
+                if (savedCoinCount) _coinCount = parseInt(savedCoinCount);
+                if (savedCoinsPerSecond) coinsPerSecond = parseInt(savedCoinsPerSecond);
+                if (savedClickValue) clickValue = parseInt(savedClickValue);
+                
+                updateDisplay();
+            };
+
+            const handleClick = () => {
+                _coinCount += clickValue;
+                updateDisplay();
+                saveState();
+            };
+
+            const gameLoop = () => {
+                _coinCount += coinsPerSecond;
+                updateDisplay();
+                saveState();
+            };
+
+            document.getElementById('clickableImage').addEventListener('click', handleClick);
+            document.getElementById('burger').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('active');
+                const burger = document.getElementById('burger');
+                burger.classList.toggle('active');
+            });
+
+            window.onload = () => {
+                loadState();
+                setInterval(gameLoop, 1000); // Обновление каждую секунду
+            };
         })();
     </script>
 </body>
