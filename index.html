@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Game</title>
+    <style>
+        @font-face {
+            font-family: 'FulboArgenta';
+            src: url('fulbo-argenta.otf') format('opentype');
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'FulboArgenta', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #72e2ff, #d3d3ff);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            animation: gradientAnimation 5s ease infinite;
+        }
+        @keyframes gradientAnimation {
+            0% { background-color: #72e2ff; }
+            50% { background-color: #d3d3ff; }
+            100% { background-color: #72e2ff; }
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        .counter {
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: black;
+        }
+        .coin-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        #clickableImage {
+            width: 200px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #clickableImage:hover {
+            transform: scale(1.1);
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: rgba(144, 238, 144, 0.5);
+            color: black;
+            transition: left 0.3s ease;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        .burger {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            z-index: 10;
+            transition: left 0.3s ease;
+        }
+        .burger div {
+            width: 30px;
+            height: 4px;
+            background-color: #333;
+            transition: all 0.3s ease;
+        }
+        .burger.active div:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .burger.active div:nth-child(2) {
+            opacity: 0;
+        }
+        .burger.active div:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        .sidebar.active ~ .burger {
+            left: 250px;
+        }
+        .menu-item {
+            margin: 10px 0;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .upgrades-panel {
+            background: rgba(144, 238, 144, 0.8);
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .upgrade-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .upgrade-item.available {
+            background-color: #006400; /* Темно-зеленый, если доступно */
+            color: white;
+        }
+        .upgrade-item.unavailable {
+            background-color: #ffcccb;
+            color: black;
+        }
+        .user-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            color: black;
+        }
+        .user-info img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="menu-item" id="upgradesMenu">Upgrades</div>
+        <div class="upgrades-panel" id="upgradesPanel"></div>
+    </div>
+    <div class="burger" id="burger">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <div class="user-info" id="userInfo">
+        <!-- Информация о пользователе Telegram будет отображаться здесь -->
+    </div>
+    <div class="container">
+        <div class="counter">
+            <img src="coin.png" alt="Coins" class="coin-icon">
+            <span id="coinCount">0</span>
+        </div>
+        <img src="tap.png" alt="Click me!" id="clickableImage">
+    </div>
+    <script>
+        (() => {
+            let _coinCount = parseInt(localStorage.getItem('coinCount')) || 0;
+            let coinsPerSecond = 0;
+            const upgradeMultiplier = 1.3;
+
+            const upgrades = [
+                { name: "Watermelon Seeds", cost: 100, effect: "+1 per sec", effectFn: () => coinsPerSecond += 1 },
+                { name: "Watermelon", cost: 500, effect: "+5 per sec", effectFn: () => coinsPerSecond += 5 },
+                { name: "Double Watermelons", cost: 1200, effect: "+10 per sec", effectFn: () => coinsPerSecond += 10 },
+                { name: "Watermelon Farm", cost: 3000, effect: "+50 per sec", effectFn: () => coinsPerSecond += 50 },
+                { name: "Watermelon Empire", cost: 8000, effect: "+100 per sec", effectFn: () => coinsPerSecond += 100 },
+                { name: "Juicy Watermelons", cost: 15000, effect: "+150 per sec", effectFn: () => coinsPerSecond += 150 },
+                { name: "Mega Farm", cost: 25000, effect: "+200 per sec", effectFn: () => coinsPerSecond += 200 },
+                { name: "Super Watermelon Field", cost: 40000, effect: "+250 per sec", effectFn: () => coinsPerSecond += 250 },
+                { name: "Hyper Farm", cost: 60000, effect: "+300 per sec", effectFn: () => coinsPerSecond += 300 },
+                { name: "Infinity Farm", cost: 100000, effect: "+500 per sec", effectFn: () => coinsPerSecond += 500 }
+            ];
+
+            const buyUpgrade = (index) => {
+                const upgrade = upgrades[index];
+                if (_coinCount >= upgrade.cost) {
+                    _coinCount -= upgrade.cost;
+                    upgrade.effectFn();
+                    upgrade.cost = Math.round(upgrade.cost * upgradeMultiplier);
+                    localStorage.setItem('coinCount', _coinCount); // Сохраняем количество монет
+
+                    const button = document.getElementById(`upgrade-${index}`);
+                    button.innerText = `${upgrade.name} - Cost: ${upgrade.cost} coins\nEffect: ${upgrade.effect}`;
+
+                    updateDisplay();
+                } else {
+                    alert("Not enough coins for this upgrade!");
+                }
+            };
+
+            const updateDisplay = () => {
+                document.getElementById('coinCount').innerText = _coinCount;
+                upgrades.forEach((upgrade, index) => {
+                    const button = document.getElementById(`upgrade-${index}`);
+                    if (_coinCount >= upgrade.cost) {
+                        button.classList.add('available');
+                        button.classList.remove('unavailable');
+                    } else {
+                        button.classList.add('unavailable');
+                        button.classList.remove('available');
+                    }
+                });
+            };
+
+            document.getElementById('clickableImage').addEventListener('click', () => {
+                _coinCount++;
+                localStorage.setItem('coinCount', _coinCount); // Сохраняем количество монет
+                updateDisplay();
+            });
+
+            const burger = document.getElementById('burger');
+            const sidebar = document.getElementById('sidebar');
+            const upgradesMenu = document.getElementById('upgradesMenu');
+            const upgradesPanel = document.getElementById('upgradesPanel');
+
+            burger.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                burger.classList.toggle('active');
+            });
+
+            upgradesMenu.addEventListener('click', () => {
+                upgradesPanel.innerHTML = '';
+                upgrades.forEach((upgrade, index) => {
+                    const button = document.createElement('div');
+                    button.className = 'upgrade-item';
+                    button.id = `upgrade-${index}`;
+                    button.innerText = `${upgrade.name} - Cost: ${upgrade.cost} coins\nEffect: ${upgrade.effect}`;
+                    button.onclick = () => buyUpgrade(index);
+                    upgradesPanel.appendChild(button);
+                });
+                sidebar.classList.add('active');
+                burger.classList.add('active');
+            });
+
+            setInterval(() => {
+                _coinCount += coinsPerSecond;
+                localStorage.setItem('coinCount', _coinCount); // Сохраняем количество монет
+                updateDisplay();
+            }, 1000);
+
+            // Функция для получения данных о пользователе Telegram
+            const getUserInfo = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const telegramUserId = urlParams.get('user_id'); // Получаем user_id из URL
+                const telegramUsername = urlParams.get('username'); // Получаем username из URL
+                const telegramAvatarUrl = urlParams.get('avatar_url'); // Получаем avatar_url из URL
+
+                if (telegramUserId && telegramUsername) {
+                    document.getElementById('userInfo').innerHTML = `
+                        <img src="${telegramAvatarUrl}" alt="${telegramUsername} Avatar">
+                        <div>
+                            <strong>ID:</strong> ${telegramUserId}<br>
+                            <strong>Username:</strong> @${telegramUsername}
+                        </div>
+                    `;
+                }
+            };
+
+            getUserInfo(); // Вызываем функцию для получения информации о пользователе
+            updateDisplay();
+        })();
+    </script>
+</body>
+</html>
