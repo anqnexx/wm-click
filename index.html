@@ -1,235 +1,298 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clicker Game</title>
-    <style>
-        @font-face {
-            font-family: 'FulboArgenta';
-            src: url('fulbo-argenta.otf') format('opentype');
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'FulboArgenta', sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #72e2ff, #d3d3ff);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-        }
-        .counter {
-            font-size: 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            color: black;
-        }
-        .coin-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-        }
-        #clickableImage {
-            width: 200px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        #clickableImage:hover {
-            transform: scale(1.1);
-        }
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -250px;
-            width: 250px;
-            height: 100%;
-            background-color: rgba(144, 238, 144, 0.5);
-            color: black;
-            transition: left 0.3s ease;
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-            overflow-y: auto;
-        }
-        .sidebar.active {
-            left: 0;
-        }
-        .burger {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            z-index: 10;
-        }
-        .burger div {
-            width: 30px;
-            height: 4px;
-            background-color: #333;
-            transition: all 0.3s ease;
-        }
-        .burger.active div:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-        .burger.active div:nth-child(2) {
-            opacity: 0;
-        }
-        .burger.active div:nth-child(3) {
-            transform: rotate(-45deg) translate(5px, -5px);
-        }
-        .menu-item {
-            margin: 10px 0;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-        .upgrades-panel {
-            background: rgba(144, 238, 144, 0.8);
-            padding: 20px;
-            margin-top: 10px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-        }
-        .upgrade-item {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .upgrade-item.available {
-            background-color: #006400; /* Темно-зеленый, если доступно */
-            color: white;
-        }
-        .upgrade-item.unavailable {
-            background-color: #ffcccb;
-            color: black;
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar" id="sidebar">
-        <div class="menu-item" id="upgradesMenu">Upgrades</div>
-        <div class="upgrades-panel" id="upgradesPanel"></div>
-    </div>
-    <div class="burger" id="burger">
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
-    <div class="container" id="gameContainer">
-        <div class="counter">
-            <img src="coin.png" alt="Coins" class="coin-icon">
-            <span id="coinCount">0</span>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Clicker Game</title>
+        <style>
+            @font-face {
+                font-family: 'FulboArgenta';
+                src: url('fulbo-argenta.otf') format('opentype');
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'FulboArgenta', sans-serif;
+            }
+            body {
+                background: linear-gradient(135deg, #72e2ff, #d3d3ff);
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+                position: relative;
+            }
+            .container {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.8);
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            }
+            .counter {
+                font-size: 2.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 20px;
+                color: black;
+            }
+            .coin-icon {
+                width: 40px;
+                height: 40px;
+                margin-right: 10px;
+                cursor: pointer; /* Сделать курсор указателем */
+                transition: transform 0.2s; /* Анимация при наведении */
+            }
+            .coin-icon:hover {
+                transform: scale(1.1); /* Увеличение при наведении */
+            }
+            #clickableImage {
+                width: 200px;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            #clickableImage:hover {
+                transform: scale(1.1);
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -300px;
+                width: 300px;
+                height: 100%;
+                background-color: rgba(144, 238, 144, 0.9);
+                color: black;
+                padding: 20px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+                transition: left 0.3s ease;
+                z-index: 1000;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .burger-button {
+                cursor: pointer;
+                font-size: 30px;
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                transition: transform 0.3s ease;
+            }
+            .burger-button:hover {
+                transform: scale(1.1);
+            }
+            .upgrade-list, .friends-list {
+                margin-top: 20px;
+                list-style-type: none;
+                padding: 0;
+            }
+            .upgrade-item, .friend-item {
+                margin: 10px 0;
+                cursor: pointer;
+                padding: 10px;
+                border-radius: 5px;
+                background-color: #4CAF50;
+                color: white;
+                transition: background-color 0.3s ease;
+            }
+            .upgrade-item:hover, .friend-item:hover {
+                background-color: #45a049;
+            }
+            .copy-link {
+                display: inline-block;
+                margin-top: 10px;
+                padding: 10px;
+                background-color: #4CAF50;
+                color: white;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            .particle {
+                position: absolute;
+                color: gold;
+                font-size: 1.5rem;
+                pointer-events: none;
+                animation: fadeOut 1s forwards;
+            }
+            @keyframes fadeOut {
+                0% {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateY(-30px);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="counter">
+                <img src="coin.png" class="coin-icon" alt="Coin" id="coinIcon">
+                <span id="coinCount">0</span>
+            </div>
+            <img id="clickableImage" src="tap.png" alt="Tap to earn coins">
+            <div class="burger-button" onclick="toggleSidebar()">☰</div>
+            <div class="sidebar" id="sidebar">
+                <button class="upgrade-item" onclick="showUpgrades()">Upgrades</button>
+                <button class="friend-item" onclick="showFriends()">Friends</button>
+                <div id="upgrades" style="display: none;">
+                    <h3>Upgrades</h3>
+                    <ul class="upgrade-list" id="upgradeList"></ul>
+                </div>
+                <div id="friends" style="display: none;">
+                    <h3>Friends</h3>
+                    <ul class="friends-list" id="friendsList"></ul>
+                    <div class="copy-link" onclick="copyLink()">Copy referral link</div>
+                </div>
+            </div>
         </div>
-        <img src="tap.png" alt="Click me!" id="clickableImage">
-    </div>
-    <script>
-        (() => {
-            let _coinCount = 0;
-            let coinsPerSecond = 0;
-            let clickValue = 1;
 
-            const upgrades = [
-                { name: "Click Upgrade", cost: 200, effect: "+1 per click", effectFn: () => clickValue += 1 },
-                { name: "Watermelon Seeds", cost: 100, effect: "+1 per sec", effectFn: () => coinsPerSecond += 1 },
-                { name: "Watermelon", cost: 500, effect: "+5 per sec", effectFn: () => coinsPerSecond += 5 },
-                { name: "Double Watermelons", cost: 1200, effect: "+10 per sec", effectFn: () => coinsPerSecond += 10 },
-                { name: "Watermelon Farm", cost: 3000, effect: "+50 per sec", effectFn: () => coinsPerSecond += 50 },
-                { name: "Watermelon Empire", cost: 8000, effect: "+100 per sec", effectFn: () => coinsPerSecond += 100 },
-                { name: "Juicy Watermelons", cost: 15000, effect: "+150 per sec", effectFn: () => coinsPerSecond += 150 },
-                { name: "Mega Watermelon", cost: 30000, effect: "+200 per sec", effectFn: () => coinsPerSecond += 200 },
-                { name: "Super Watermelon", cost: 50000, effect: "+500 per sec", effectFn: () => coinsPerSecond += 500 },
-            ];
+        <script>
+            let coinCount = 0;
+            let clickUpgradeCost = 1000;
+            let clickUpgradeValue = 1; // First upgrade +1 click
+            let upgrades = [];
+            let friends = [];
+            let userId = Math.floor(Math.random() * 1000000); // Generate userId for example
+            let referralLink = `https://t.me/watermelon_clickBOT_ref=${userId}`;
+            let coinReceived = false; // Flag to check if coin has been received
 
-            const buyUpgrade = (index) => {
-                if (_coinCount >= upgrades[index].cost) {
-                    _coinCount -= upgrades[index].cost;
-                    upgrades[index].effectFn();
-                    upgrades[index].cost = Math.ceil(upgrades[index].cost * 1.3); // Увеличиваем стоимость на 30%
+            function loadGame() {
+                const savedCoins = localStorage.getItem('coinCount');
+                const savedUpgrades = localStorage.getItem('upgrades');
+                const savedFriends = localStorage.getItem('friends');
+
+                if (savedCoins) {
+                    coinCount = parseInt(savedCoins);
+                }
+                if (savedUpgrades) {
+                    upgrades = JSON.parse(savedUpgrades);
+                }
+                if (savedFriends) {
+                    friends = JSON.parse(savedFriends);
+                }
+
+                updateDisplay();
+                renderUpgrades();
+                renderFriends();
+            }
+
+            function updateDisplay() {
+                document.getElementById('coinCount').innerText = coinCount;
+                localStorage.setItem('coinCount', coinCount);
+            }
+
+            function renderUpgrades() {
+                const upgradeList = document.getElementById('upgradeList');
+                upgradeList.innerHTML = '';
+                upgrades.forEach((upgrade, index) => {
+                    upgradeList.innerHTML += `<li class="upgrade-item" onclick="buyUpgrade(${index})">${upgrade.name}: ${upgrade.cost} coins</li>`;
+                });
+                // Add click upgrade
+                upgradeList.innerHTML += `<li class="upgrade-item" onclick="buyClickUpgrade()">Click Upgrade: ${clickUpgradeCost} coins</li>`;
+            }
+
+            function renderFriends() {
+                const friendsList = document.getElementById('friendsList');
+                friendsList.innerHTML = '';
+                friends.forEach(friend => {
+                    friendsList.innerHTML += `<li class="friend-item">${friend.name}: ${friend.coins} coins</li>`;
+                });
+            }
+
+            function buyClickUpgrade() {
+                if (coinCount >= clickUpgradeCost) {
+                    coinCount -= clickUpgradeCost;
+                    clickUpgradeCost = Math.floor(clickUpgradeCost * 1.3);
                     updateDisplay();
-                    saveState();
+                    alert('Click upgrade purchased! Now each click adds +1 coin.');
+                    renderUpgrades();
+                } else {
+                    alert('Not enough coins to buy click upgrade!');
+                }
+            }
+
+            function buyUpgrade(index) {
+                if (coinCount >= upgrades[index].cost) {
+                    coinCount -= upgrades[index].cost;
+                    upgrades[index].cost = Math.floor(upgrades[index].cost * 1.3);
+                    upgrades[index].level++;
+                    updateDisplay();
+                    alert(`Upgrade "${upgrades[index].name}" purchased! Level: ${upgrades[index].level}`);
+                    renderUpgrades();
+                } else {
+                    alert('Not enough coins to buy upgrade!');
+                }
+            }
+
+            function addFriend(name) {
+                friends.push({ name, coins: 1000, friends: [] });
+                localStorage.setItem('friends', JSON.stringify(friends));
+                renderFriends();
+            }
+
+            function copyLink() {
+                navigator.clipboard.writeText(referralLink).then(() => {
+                    alert('Referral link copied!');
+                });
+            }
+
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('open');
+            }
+
+            function showUpgrades() {
+                document.getElementById('upgrades').style.display = 'block';
+                document.getElementById('friends').style.display = 'none';
+            }
+
+            function showFriends() {
+                document.getElementById('upgrades').style.display = 'none';
+                document.getElementById('friends').style.display = 'block';
+            }
+
+            // Particle effect
+            function createParticle(x, y, amount) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.innerText = `+${amount}`;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                document.body.appendChild(particle);
+                setTimeout(() => {
+                    document.body.removeChild(particle);
+                }, 1000);
+            }
+
+            // Click event for the watermelon
+            document.getElementById('clickableImage').onclick = function(event) {
+                coinCount += clickUpgradeValue;
+                updateDisplay();
+                createParticle(event.clientX, event.clientY, clickUpgradeValue);
+            };
+
+            // Click event for the coin icon
+            const coinIcon = document.getElementById('coinIcon');
+            coinIcon.onclick = function(event) {
+                if (!coinReceived) {
+                    coinCount += 15000; // Add 15000 coins
+                    coinReceived = true; // Mark as clicked
+                    updateDisplay();
+                    alert('You received 15000 coins!');
+                    createParticle(event.clientX, event.clientY, 15000);
+                } else {
+                    alert('You can only click the coin once!');
                 }
             };
 
-            const updateDisplay = () => {
-                document.getElementById('coinCount').innerText = _coinCount;
-                renderUpgrades();
-            };
-
-            const renderUpgrades = () => {
-                const upgradesPanel = document.getElementById('upgradesPanel');
-                upgradesPanel.innerHTML = '';
-                upgrades.forEach((upgrade, index) => {
-                    const button = document.createElement('div');
-                    button.id = `upgrade-${index}`;
-                    button.classList.add('upgrade-item', _coinCount >= upgrade.cost ? 'available' : 'unavailable');
-                    button.innerText = `${upgrade.name} - Cost: ${upgrade.cost} coins\nEffect: ${upgrade.effect}`;
-                    button.addEventListener('click', () => buyUpgrade(index));
-                    upgradesPanel.appendChild(button);
-                });
-            };
-
-            const saveState = () => {
-                localStorage.setItem('coinCount', _coinCount);
-                localStorage.setItem('coinsPerSecond', coinsPerSecond);
-                localStorage.setItem('clickValue', clickValue);
-            };
-
-            const loadState = () => {
-                const savedCoinCount = localStorage.getItem('coinCount');
-                const savedCoinsPerSecond = localStorage.getItem('coinsPerSecond');
-                const savedClickValue = localStorage.getItem('clickValue');
-
-                if (savedCoinCount) _coinCount = parseInt(savedCoinCount);
-                if (savedCoinsPerSecond) coinsPerSecond = parseInt(savedCoinsPerSecond);
-                if (savedClickValue) clickValue = parseInt(savedClickValue);
-                
-                updateDisplay();
-            };
-
-            const handleClick = () => {
-                _coinCount += clickValue;
-                updateDisplay();
-                saveState();
-            };
-
-            const gameLoop = () => {
-                _coinCount += coinsPerSecond;
-                updateDisplay();
-                saveState();
-            };
-
-            document.getElementById('clickableImage').addEventListener('click', handleClick);
-            document.getElementById('burger').addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('active');
-                const burger = document.getElementById('burger');
-                burger.classList.toggle('active');
-            });
-
-            window.onload = () => {
-                loadState();
-                setInterval(gameLoop, 1000); // Обновление каждую секунду
-            };
-        })();
-    </script>
-</body>
-</html>
+            // Load game data on start
+            loadGame();
+        </script>
+    </body>
+    </html>
