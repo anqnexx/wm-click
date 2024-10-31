@@ -1,291 +1,352 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clicker Game</title>
+    <title>Кликер</title>
     <style>
         @font-face {
-            font-family: 'FulboArgenta';
+            font-family: 'Fulbo';
             src: url('fulbo-argenta.otf') format('opentype');
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'FulboArgenta', sans-serif;
-        }
+
         body {
-            background: linear-gradient(135deg, #72e2ff, #d3d3ff);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0;
             overflow: hidden;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Fulbo', sans-serif;
+            color: black;
+            background: linear-gradient(45deg, #f00, #f8c8c8, #ffb3b3);
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
         }
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .counter {
-            font-size: 2.5rem;
+
+        #tapArea {
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin-top: 20px;
+        }
+
+        #tapArea:active {
+            transform: scale(0.9);
+        }
+
+        #counters {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #coinCounter, #energyCounter {
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        img {
+            width: 55px;
+            margin-right: 5px;
+        }
+
+        #energyCounter {
+            margin-top: 10px;
+        }
+
+        #tapImage {
+            width: 250px;
+            height: 250px;
+        }
+
+        #bottomPanel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
-            color: black;
-        }
-        .coin-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-            cursor: pointer; /* Сделать курсор указателем */
-            transition: transform 0.2s; /* Анимация при наведении */
-        }
-        .coin-icon:hover {
-            transform: scale(1.1); /* Увеличение при наведении */
-        }
-        #clickableImage {
-            width: 200px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        #clickableImage:hover {
-            transform: scale(1.1);
-        }
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100%;
-            background-color: rgba(144, 238, 144, 0.9);
-            color: black;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            transition: left 0.3s ease;
-            z-index: 1000;
-        }
-        .sidebar.open {
-            left: 0;
-        }
-        .burger-button {
-            cursor: pointer;
-            font-size: 30px;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            transition: transform 0.3s ease;
-        }
-        .burger-button:hover {
-            transform: scale(1.1);
-        }
-        .upgrade-list, .friends-list {
-            margin-top: 20px;
-            list-style-type: none;
-            padding: 0;
-        }
-        .upgrade-item, .friend-item {
-            margin: 10px 0;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-        .upgrade-item:hover, .friend-item:hover {
-            background-color: #45a049;
-        }
-        .copy-link {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .particle {
-            position: absolute;
-            color: gold;
-            font-size: 1.5rem;
-            pointer-events: none;
-            animation: fadeOut 1s forwards;
-        }
-        @keyframes fadeOut {
-            0% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-        }
-        .username-display {
-            position: fixed;
-            top: 20px;
-            right: 20px;
+            margin-bottom: 10px;
             font-size: 20px;
-            color: black;
-            z-index: 1000;
+        }
+
+        .button {
+            margin-left: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 18px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(0.95);
+        }
+
+        #shopModal, #boostModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            width: 300px;
+            text-align: center;
+        }
+
+        #shopModal h2, #boostModal h2 {
+            margin: 0 0 20px 0;
+        }
+
+        .upgrade {
+            margin: 10px 0;
+        }
+
+        .upgrade button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upgrade button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="username-display" id="usernameDisplay"></div> <!-- Username display -->
-        <div class="counter">
-            <img src="coin.png" class="coin-icon" alt="Coin" id="coinIcon">
-            <span id="coinCount">0</span>
+
+    <div id="counters">
+        <div id="coinCounter">
+            <img src="coin.png" alt="Монеты"> <span id="coins">0</span>
         </div>
-        <img id="clickableImage" src="tap.png" alt="Tap to earn coins">
-        <div class="burger-button" onclick="toggleSidebar()">☰</div>
-        <div class="sidebar" id="sidebar">
-            <button class="upgrade-item" onclick="showUpgrades()">Upgrades</button>
-            <button class="friend-item" onclick="showFriends()">Friends</button>
-            <div id="upgrades" style="display: none;">
-                <h3>Upgrades</h3>
-                <ul class="upgrade-list" id="upgradeList"></ul>
-            </div>
-            <div id="friends" style="display: none;">
-                <h3>Friends</h3>
-                <ul class="friends-list" id="friendsList"></ul>
-                <div class="copy-link" onclick="copyLink()">Copy referral link</div>
-            </div>
+        <div id="energyCounter">
+            <img src="energy.png" alt="Энергия"> <span id="energy">1000</span>
+        </div>
+    </div>
+
+    <div id="tapArea">
+        <img src="tap.png" alt="Арбуз" id="tapImage">
+    </div>
+
+    <div id="bottomPanel">
+        <button class="button" id="shopButton">Магазин</button>
+        <button class="button" id="boostButton">Бусты</button>
+    </div>
+
+    <div id="shopModal">
+        <h2>Магазин</h2>
+        <div class="upgrade">Арбузный друг (+10 в секунду)
+            <button id="buyWatermelonBuddy">100 коинов</button>
+        </div>
+        <div class="upgrade">Арбузный арбуз (+15 в секунду)
+            <button id="buyWatermelon">125 коинов</button>
+        </div>
+        <div class="upgrade">Зеленый брат (+20 в секунду)
+            <button id="buyGreenBrother">200 коинов</button>
+        </div>
+        <div class="upgrade">Фруктовый друг (+25 в секунду)
+            <button id="buyFruitBuddy">300 коинов</button>
+        </div>
+        <div class="upgrade">Летний друг (+30 в секунду)
+            <button id="buySummerBuddy">400 коинов</button>
+        </div>
+    </div>
+
+    <div id="boostModal">
+        <h2>Бусты</h2>
+        <div class="upgrade">Енергичный шар (+500 к энергии)
+            <button id="buyEnergyBall">500 монет</button>
+        </div>
+        <div class="upgrade">Арбузный челик (+1 за клик)
+            <button id="buyWatermelonBuddyBoost">1000 монет</button>
         </div>
     </div>
 
     <script>
-        let coinCount = 0;
-        let clickUpgradeCost = 1000;
-        let clickUpgradeValue = 1; // First upgrade +1 click
-        let upgrades = [];
-        let friends = [];
-        let userId = Math.floor(Math.random() * 1000000); // Generate userId for example
-        let referralLink = `https://t.me/watermelon_clickBOT_ref=${userId}`;
-        let coinReceived = false; // Flag to check if coin has been received
-        let username = ''; // Variable to hold the username
+        let coins = 0;
+        let energy = 1000;
+        let hourlyEarnings = 0;
+        let clickBonus = 0;
 
-        function loadGame() {
-            const savedCoins = localStorage.getItem('coinCount');
-            const savedUpgrades = localStorage.getItem('upgrades');
-            const savedFriends = localStorage.getItem('friends');
-            const savedUsername = localStorage.getItem('username');
+        const coinsDisplay = document.getElementById("coins");
+        const energyDisplay = document.getElementById("energy");
+        const shopModal = document.getElementById("shopModal");
+        const boostModal = document.getElementById("boostModal");
 
-            if (savedCoins) {
-                coinCount = parseInt(savedCoins);
-            }
-            if (savedUpgrades) {
-                upgrades = JSON.parse(savedUpgrades);
-            }
-            if (savedFriends) {
-                friends = JSON.parse(savedFriends);
-            }
-            if (savedUsername) {
-                username = savedUsername;
-            }
+        // Проверка на Telegram клиент
+        const isTelegramClient = () => {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return /Telegram/.test(userAgent);
+        };
 
-            updateDisplay();
-            renderUpgrades();
-            renderFriends();
-            displayUsername();
+        if (!isTelegramClient()) {
+            document.body.innerHTML = "<h1 style='color:red;'>Ошибка: доступ только через Telegram клиент!</h1>";
         }
 
-        function displayUsername() {
-            const usernameDisplay = document.getElementById('usernameDisplay');
-            if (isTelegramUser()) {
-                username = prompt('Please enter your Telegram username:');
-                localStorage.setItem('username', username);
-            }
-            usernameDisplay.innerText = username ? `Telegram User: @${username}` : '';
-        }
-
-        function isTelegramUser() {
-            return navigator.userAgent.includes("Telegram");
-        }
-
-        function updateDisplay() {
-            document.getElementById('coinCount').innerText = coinCount;
-            localStorage.setItem('coinCount', coinCount);
-        }
-
-        function renderUpgrades() {
-            const upgradeList = document.getElementById('upgradeList');
-            upgradeList.innerHTML = '';
-            upgrades.forEach((upgrade, index) => {
-                upgradeList.innerHTML += `<li class="upgrade-item" onclick="buyUpgrade(${index})">${upgrade.name}: ${upgrade.cost} coins</li>`;
-            });
-            // Add click upgrade
-            upgradeList.innerHTML += `<li class="upgrade-item" onclick="buyClickUpgrade()">Click Upgrade: ${clickUpgradeCost} coins</li>`;
-        }
-
-        function renderFriends() {
-            const friendsList = document.getElementById('friendsList');
-            friendsList.innerHTML = '';
-            friends.forEach(friend => {
-                friendsList.innerHTML += `<li class="friend-item">${friend.name}: ${friend.coins} coins</li>`;
-            });
-        }
-
-        function buyClickUpgrade() {
-            if (coinCount >= clickUpgradeCost) {
-                coinCount -= clickUpgradeCost;
-                clickUpgradeCost = Math.floor(clickUpgradeCost * 1.3);
-                updateDisplay();
-                alert('Click upgrade purchased! Now each click adds +1 coin.');
-                renderUpgrades();
-            } else {
-                alert('Not enough coins to buy click upgrade!');
-            }
-        }
-
-        function buyUpgrade(index) {
-            if (coinCount >= upgrades[index].cost) {
-                coinCount -= upgrades[index].cost;
-                upgrades[index].cost = Math.floor(upgrades[index].cost * 1.5);
-                updateDisplay();
-                alert(`${upgrades[index].name} purchased!`);
-                renderUpgrades();
-            } else {
-                alert('Not enough coins to buy this upgrade!');
-            }
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        function copyLink() {
-            navigator.clipboard.writeText(referralLink);
-            alert('Referral link copied to clipboard!');
-        }
-
-        document.getElementById('clickableImage').addEventListener('click', function () {
-            coinCount += clickUpgradeValue;
-            updateDisplay();
-            createParticleEffect(event.pageX, event.pageY);
+        // Функция для открытия магазина
+        document.getElementById("shopButton").addEventListener("click", () => {
+            shopModal.style.display = "block";
+            boostModal.style.display = "none"; // Закрыть бусты
         });
 
-        function createParticleEffect(x, y) {
-            const particle = document.createElement('span');
-            particle.className = 'particle';
-            particle.innerText = '+1';
-            particle.style.left = `${x}px`;
-            particle.style.top = `${y}px`;
-            document.body.appendChild(particle);
-            setTimeout(() => {
-                particle.remove();
-            }, 1000);
-        }
+        // Функция для открытия бустов
+        document.getElementById("boostButton").addEventListener("click", () => {
+            boostModal.style.display = "block";
+            shopModal.style.display = "none"; // Закрыть магазин
+        });
 
-        loadGame(); // Load saved game data when page loads
+        // Событие клика по арбузу
+        document.getElementById("tapArea").addEventListener("click", () => {
+            if (energy > 0) {
+                coins += (1 + clickBonus);
+                energy--;
+                coinsDisplay.textContent = coins;
+                energyDisplay.textContent = energy;
+            } else {
+                alert("Недостаточно энергии!");
+            }
+        });
+
+        // Покупка арбузного друга
+        document.getElementById("buyWatermelonBuddy").addEventListener("click", () => {
+            if (coins >= 100) {
+                coins -= 100;
+                hourlyEarnings += 10 / 60; // Прибыль в секунду
+                coinsDisplay.textContent = coins;
+                alert("Вы купили арбузного друга! +10 в секунду");
+                updatePrices();
+            } else {
+                alert("Недостаточно монет!");
+            }
+        });
+
+        // Покупка арбузного арбуза
+        document.getElementById("buyWatermelon").addEventListener("click", () => {
+            if (coins >= 125) {
+                coins -= 125;
+                hourlyEarnings += 15 / 60; // Прибыль в секунду
+                coinsDisplay.textContent = coins;
+                alert("Вы купили арбузный арбуз! +15 в секунду");
+                updatePrices();
+            } else {
+                alert("Недостаточно монет!");
+            }
+        });
+
+        // Дополнительные улучшения
+        document.getElementById("buyGreenBrother").addEventListener("click", () => {
+            if (coins >= 200) {
+                coins -= 200;
+                hourlyEarnings += 20 / 60; // Прибыль в секунду
+                coinsDisplay.textContent = coins;
+                alert("Вы купили зеленого брата! +20 в секунду");
+                updatePrices();
+            } else {
+                alert("Недостаточно монет!");
+            }
+        });
+
+        document.getElementById("buyFruitBuddy").addEventListener("click", () => {
+            if (coins >= 300) {
+                coins -= 300;
+                hourlyEarnings += 25 / 60; // Прибыль в секунду
+                coinsDisplay.textContent = coins;
+                alert("Вы купили фруктового друга! +25 в секунду");
+                updatePrices();
+            } else {
+                alert("Недостаточно монет!");
+            }
+        });
+
+        document.getElementById("buySummerBuddy").addEventListener("click", () => {
+            if (coins >= 400) {
+                coins -= 400;
+                hourlyEarnings += 30 / 60; // Прибыль в секунду
+                coinsDisplay.textContent = coins;
+                alert("Вы купили летнего друга! +30 в секунду");
+                updatePrices();
+            } else {
+                alert("Недостаточно монет!");
+            }
+        });
+
+        // Покупка энергичного шара
+        document.getElementById("buyEnergyBall").addEventListener("click", () => {
+            if (coins >= 500) {
+                coins -= 500;
+                energy += 500;
+                energyDisplay.textContent = energy;
+                alert("Вы купили енергичный шар! +500 к энергии");
+                updatePrices();
+            } else {
+                alert("Недостаточно монет!");
+            }
+        });
+
+        // Покупка арбузного чела (буст)
+        document.getElementById("buyWatermelonBuddyBoost").addEventListener("click", () => {
+            if (coins >= 1000) {
+                coins -= 1000;
+                clickBonus += 1; // Увеличиваем бонус за клик
+                coinsDisplay.textContent = coins;
+                alert("Вы купили арбузного чела! +1 за клик");
+                updatePrices(true);
+            } else {
+                alert("Недостаточно монет!");
+            }
+        });
+
+        // Обновление заработка
+        setInterval(() => {
+            coins += hourlyEarnings;
+            coinsDisplay.textContent = coins;
+        }, 1000);
+
+        // Функция для обновления цен
+        const updatePrices = (isBoost = false) => {
+            if (isBoost) {
+                // Увеличение цен для бустов
+                document.getElementById("buyWatermelonBuddyBoost").innerText = `${Math.round(1000 * 2)} монет`;
+            } else {
+                // Увеличение цен для улучшений
+                document.getElementById("buyWatermelonBuddy").innerText = `${Math.round(100 * 1.2)} коинов`;
+                document.getElementById("buyWatermelon").innerText = `${Math.round(125 * 1.2)} коинов`;
+                document.getElementById("buyGreenBrother").innerText = `${Math.round(200 * 1.2)} коинов`;
+                document.getElementById("buyFruitBuddy").innerText = `${Math.round(300 * 1.2)} коинов`;
+                document.getElementById("buySummerBuddy").innerText = `${Math.round(400 * 1.2)} коинов`;
+                document.getElementById("buyEnergyBall").innerText = `${Math.round(500 * 1.2)} монет`;
+            }
+        };
     </script>
 </body>
 </html>
