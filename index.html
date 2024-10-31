@@ -3,336 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кликер</title>
+    <title>Spare Clicker</title>
     <style>
-        @font-face {
-            font-family: 'Fulbo';
-            src: url('fulbo-argenta.otf') format('opentype');
-        }
-
         body {
-            margin: 0;
-            overflow: hidden;
+            font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            font-family: 'Fulbo', sans-serif;
-            color: black;
-            background: linear-gradient(45deg, #f00, #f8c8c8, #ffb3b3);
-            background-size: 400% 400%;
-            animation: gradientAnimation 10s ease infinite;
-        }
-
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        #tapArea {
-            cursor: pointer;
-            transition: transform 0.1s;
-            margin-top: 20px;
-        }
-
-        #tapArea:active {
-            transform: scale(0.9);
-        }
-
-        #counters {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        #coinCounter, #energyCounter {
-            font-size: 32px;
-            display: flex;
-            align-items: center;
-        }
-
-        img {
-            width: 55px;
-            margin-right: 5px;
-        }
-
-        #energyCounter {
-            margin-top: 10px;
-        }
-
-        #tapImage {
-            width: 250px;
-            height: 250px;
-        }
-
-        #bottomPanel {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        .button {
-            margin-left: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            font-size: 18px;
-        }
-
-        .button:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
-        }
-
-        .button:active {
-            transform: scale(0.95);
-        }
-
-        #shopModal, #boostModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            width: 300px;
+            margin: 0;
             text-align: center;
         }
 
-        #shopModal h2, #boostModal h2 {
-            margin: 0 0 20px 0;
+        #mainContent {
+            display: none;
         }
 
-        .upgrade {
-            margin: 10px 0;
-        }
-
-        .upgrade button {
-            margin-left: 10px;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .upgrade button:hover {
-            background-color: #45a049;
+        #errorMessage {
+            color: red;
+            font-size: 24px;
         }
     </style>
 </head>
 <body>
-
-    <div id="counters">
-        <div id="coinCounter">
-            <img src="coin.png" alt="Монеты"> <span id="coins">0</span>
-        </div>
-        <div id="energyCounter">
-            <img src="energy.png" alt="Энергия"> <span id="energy">1000</span>
-        </div>
+    <!-- Основное содержимое сайта (кликер) -->
+    <div id="mainContent">
+        <h1>Spare Clicker</h1>
+        <p>Нажмите на кнопку, чтобы заработать монеты!</p>
+        <button onclick="addCoins()">Кликни!</button>
+        <p>Монеты: <span id="coinCount">0</span></p>
     </div>
 
-    <div id="tapArea">
-        <img src="tap.png" alt="Арбуз" id="tapImage">
-    </div>
-
-    <div id="bottomPanel">
-        <button class="button" id="shopButton">Магазин</button>
-        <button class="button" id="boostButton">Бусты</button>
-    </div>
-
-    <div id="shopModal">
-        <h2>Магазин</h2>
-        <div class="upgrade">Арбузный друг (+10 в секунду)
-            <button id="buyWatermelonBuddy">100 коинов</button>
-        </div>
-        <div class="upgrade">Арбузный арбуз (+15 в секунду)
-            <button id="buyWatermelon">125 коинов</button>
-        </div>
-        <div class="upgrade">Зеленый брат (+20 в секунду)
-            <button id="buyGreenBrother">200 коинов</button>
-        </div>
-        <div class="upgrade">Фруктовый друг (+25 в секунду)
-            <button id="buyFruitBuddy">300 коинов</button>
-        </div>
-        <div class="upgrade">Летний друг (+30 в секунду)
-            <button id="buySummerBuddy">400 коинов</button>
-        </div>
-    </div>
-
-    <div id="boostModal">
-        <h2>Бусты</h2>
-        <div class="upgrade">Енергичный шар (+500 к энергии)
-            <button id="buyEnergyBall">500 монет</button>
-        </div>
-        <div class="upgrade">Арбузный челик (+1 за клик)
-            <button id="buyWatermelonBuddyBoost">1000 монет</button>
-        </div>
+    <!-- Сообщение об ошибке для пользователей не из Telegram -->
+    <div id="errorMessage">
+        <p>Ошибка: доступ разрешен только через браузер Telegram.</p>
     </div>
 
     <script>
+        // Функция проверки, используется ли Telegram браузер
+        function isTelegramBrowser() {
+            return /Telegram/.test(navigator.userAgent);
+        }
+
+        // Показ основного содержимого или сообщения об ошибке
+        if (isTelegramBrowser()) {
+            document.getElementById("mainContent").style.display = "block";
+            document.getElementById("errorMessage").style.display = "none";
+        } else {
+            document.getElementById("mainContent").style.display = "none";
+            document.getElementById("errorMessage").style.display = "block";
+        }
+
+        // Функция для увеличения количества монет при клике
         let coins = 0;
-        let energy = 1000;
-        let hourlyEarnings = 0;
-        let clickBonus = 0;
-
-        const coinsDisplay = document.getElementById("coins");
-        const energyDisplay = document.getElementById("energy");
-        const shopModal = document.getElementById("shopModal");
-        const boostModal = document.getElementById("boostModal");
-
-        // Проверка на Telegram клиент
-        const isTelegramClient = () => {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            return /Telegram/.test(userAgent);
-        };
-
-        if (!isTelegramClient()) {
-            document.body.innerHTML = "<h1 style='color:red;'>Ошибка: доступ только через Telegram клиент!</h1>";
+        function addCoins() {
+            coins++;
+            document.getElementById("coinCount").textContent = coins;
         }
-
-        // Функция для открытия магазина
-        document.getElementById("shopButton").addEventListener("click", () => {
-            shopModal.style.display = "block";
-            boostModal.style.display = "none"; // Закрыть бусты
-        });
-
-        // Функция для открытия бустов
-        document.getElementById("boostButton").addEventListener("click", () => {
-            boostModal.style.display = "block";
-            shopModal.style.display = "none"; // Закрыть магазин
-        });
-
-        // Событие клика по арбузу
-        document.getElementById("tapArea").addEventListener("click", () => {
-            if (energy > 0) {
-                coins += (1 + clickBonus);
-                energy--;
-                coinsDisplay.textContent = coins;
-                energyDisplay.textContent = energy;
-            } else {
-                alert("Недостаточно энергии!");
-            }
-        });
-
-        // Покупка арбузного друга
-        document.getElementById("buyWatermelonBuddy").addEventListener("click", () => {
-            if (coins >= 100) {
-                coins -= 100;
-                hourlyEarnings += 10 / 60; // Прибыль в секунду
-                coinsDisplay.textContent = coins;
-                alert("Вы купили арбузного друга! +10 в секунду");
-                updatePrices();
-            } else {
-                alert("Недостаточно монет!");
-            }
-        });
-
-        // Покупка арбузного арбуза
-        document.getElementById("buyWatermelon").addEventListener("click", () => {
-            if (coins >= 125) {
-                coins -= 125;
-                hourlyEarnings += 15 / 60; // Прибыль в секунду
-                coinsDisplay.textContent = coins;
-                alert("Вы купили арбузный арбуз! +15 в секунду");
-                updatePrices();
-            } else {
-                alert("Недостаточно монет!");
-            }
-        });
-
-        // Дополнительные улучшения
-        document.getElementById("buyGreenBrother").addEventListener("click", () => {
-            if (coins >= 200) {
-                coins -= 200;
-                hourlyEarnings += 20 / 60; // Прибыль в секунду
-                coinsDisplay.textContent = coins;
-                alert("Вы купили зеленого брата! +20 в секунду");
-                updatePrices();
-            } else {
-                alert("Недостаточно монет!");
-            }
-        });
-
-        document.getElementById("buyFruitBuddy").addEventListener("click", () => {
-            if (coins >= 300) {
-                coins -= 300;
-                hourlyEarnings += 25 / 60; // Прибыль в секунду
-                coinsDisplay.textContent = coins;
-                alert("Вы купили фруктового друга! +25 в секунду");
-                updatePrices();
-            } else {
-                alert("Недостаточно монет!");
-            }
-        });
-
-        document.getElementById("buySummerBuddy").addEventListener("click", () => {
-            if (coins >= 400) {
-                coins -= 400;
-                hourlyEarnings += 30 / 60; // Прибыль в секунду
-                coinsDisplay.textContent = coins;
-                alert("Вы купили летнего друга! +30 в секунду");
-                updatePrices();
-            } else {
-                alert("Недостаточно монет!");
-            }
-        });
-
-        // Бусты
-        document.getElementById("buyEnergyBall").addEventListener("click", () => {
-            if (coins >= 500) {
-                coins -= 500;
-                energy += 500;
-                coinsDisplay.textContent = coins;
-                energyDisplay.textContent = energy;
-                alert("Вы купили енергичный шар! +500 к энергии");
-            } else {
-                alert("Недостаточно монет!");
-            }
-        });
-
-        document.getElementById("buyWatermelonBuddyBoost").addEventListener("click", () => {
-            if (coins >= 1000) {
-                coins -= 1000;
-                clickBonus += 1; // +1 к клику
-                coinsDisplay.textContent = coins;
-                alert("Вы купили арбузного чела! +1 за клик");
-            } else {
-                alert("Недостаточно монет!");
-            }
-        });
-
-        function updatePrices() {
-            // Обновить цены улучшений, если необходимо
-        }
-
-        // Обновление прибыли каждую секунду
-        setInterval(() => {
-            coins += hourlyEarnings; // Добавить прибыль
-            coinsDisplay.textContent = coins;
-        }, 1000);
     </script>
 </body>
 </html>
