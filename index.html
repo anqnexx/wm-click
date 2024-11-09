@@ -33,33 +33,5 @@
         <button onclick="addCoins()">Кликни!</button>
         <p>Монеты: <span id="coinCount">0</span></p>
     </div>
-
-    <!-- Сообщение об ошибке для пользователей не из Telegram -->
-    <div id="errorMessage">
-        <p>Ошибка: доступ разрешен только через браузер Telegram.</p>
-    </div>
-
-    <script>
-        // Функция проверки, используется ли Telegram браузер
-        function isTelegramBrowser() {
-            return /Telegram/.test(navigator.userAgent);
-        }
-
-        // Показ основного содержимого или сообщения об ошибке
-        if (isTelegramBrowser()) {
-            document.getElementById("mainContent").style.display = "block";
-            document.getElementById("errorMessage").style.display = "none";
-        } else {
-            document.getElementById("mainContent").style.display = "none";
-            document.getElementById("errorMessage").style.display = "block";
-        }
-
-        // Функция для увеличения количества монет при клике
-        let coins = 0;
-        function addCoins() {
-            coins++;
-            document.getElementById("coinCount").textContent = coins;
-        }
-    </script>
 </body>
 </html>
